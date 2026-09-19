@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 )
 
 const PORT = ":8080"
-const UPLOAD_FOLDER string = "data"
+const UPLOAD_DIR string = "data"
+const PROJECT_TEMPLATE string = "template.md"
 
 /* Mutex logic in GO */
 /* var counter int
@@ -22,54 +21,34 @@ func incrementCounter(w http.ResponseWriter, r *http.Request) {
 	mutex.Unlock()
 } */
 
-func createProjectHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract 'projectName' from the URL wildcard
-	projectName := r.PathValue("project")
-
-	// Sanitize path to prevent directory traversal (e.g., ../ attacks)
-	safeProjectName := filepath.Base(projectName)
-	if safeProjectName == "." || safeProjectName == "/" {
-		http.Error(w, "Invalid project name", http.StatusBadRequest)
-		return
-	}
-
-	// Build directory path: uploads/<projectName>
-	projectDir := filepath.Join(UPLOAD_FOLDER, safeProjectName)
-	if _, err := os.Stat(projectDir); err == nil {
-		http.Error(w, "Project already exists", http.StatusBadRequest)
-		return
-	}
-
-	// Create directory (0755: read/write/execute for owner, read/execute for others)
-	err := os.MkdirAll(projectDir, 0755)
-	if err != nil {
-		http.Error(w, "Failed to create project folder", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Project folder '%s' created successfully at %s\n", safeProjectName, projectDir)
-}
-
 func main() {
-	fmt.Printf("Hello World\n")
+	fmt.Println("Server starting on :8080...")
 
-	// Initialize a server multiplexer to parse complex requests
 	mux := http.NewServeMux()
-	// Set static serving directory
-	fileServer := http.FileServer(http.Dir("./static"))
 
-	// Serve static assets at root (e.g. GET /index.html -> ./static/index.html)
-	mux.Handle("GET /", fileServer)
+	// Rule 6: Serve root "/" (Serves ./static/index.html, handles /login redirect flow)
+	// staticServer := http.FileServer(http.Dir("./static"))
+	mux.Handle("GET /", http.FileServer(http.Dir("./static")))
 
-	// Handles Project creation and POST of files
-	mux.HandleFunc("POST /{project}", createProjectHandler)
-	mux.HandleFunc("POST /{project}/{filename}", fileUploadHandler)
+	// Auth endpoint referenced in Rule 6
+	// mux.HandleFunc("GET /login", loginHandler)
 
-	mux.HandleFunc("GET /hi", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hi")
-	})
+	// List projects at the root URL
+	mux.HandleFunc("GET /projects", listProjectsHandler)
+
+	// Download the whole project as a zip
+	mux.HandleFunc("GET /{project}/download", downloadProjectHandler)
+
+	// Render project summary page
+	mux.HandleFunc("GET /{project}/{$}", getProjectHandler)
+	mux.HandleFunc("GET /{project}", getProjectHandler)
+
+	// Project & Resource CRUD
+	mux.HandleFunc("POST /{project}", postProjectHandler)
+	mux.HandleFunc("DELETE /{project}", deleteProjectHandler)
+	mux.HandleFunc("GET /{project}/{resource}", getResourceHandler)
+	mux.HandleFunc("POST /{project}/{resource}", postResourceHandler)
+	mux.HandleFunc("DELETE /{project}/{resource}", deleteResourceHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
-
 }
