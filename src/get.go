@@ -122,8 +122,8 @@ func GetProjectMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Print the JSON object
-	fmt.Print("This is what I ret\n", metadata)
+	// Print the JSON object #debug
+	// fmt.Print("This is what I ret\n", metadata)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(metadata)

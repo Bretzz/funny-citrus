@@ -46,12 +46,6 @@ func BuildProjectPath(project string) (string, error) {
 	return projPath, nil
 }
 
-func enableCors(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-}
-
 func main() {
 	fmt.Println("Hello World")
 
@@ -67,7 +61,15 @@ func main() {
 	// download
 	mux.HandleFunc("GET /p/download", GetProjectDownload)
 
-	log.Fatal(http.ListenAndServe(":8080", logRequest(mux)))
+	// log.Fatal(http.ListenAndServe(":8080", logRequest(mux)))
+	log.Fatal(http.ListenAndServe(":8080", mux))
+}
+
+// Logging and enabling CORS
+func enableCors(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 }
 
 func logRequest(handler http.Handler) http.Handler {
