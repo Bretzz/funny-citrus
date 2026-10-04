@@ -27,7 +27,6 @@ import (
 */
 
 const PROJECT_DIR string = "./data"
-const STATIC_DIR string = "./static"
 
 var INVALID_PROJECT_NAMES = []string{"", ".", "/", "p"}
 
