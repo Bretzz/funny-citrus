@@ -1,5 +1,3 @@
-module funny-citrus
+module funny-citrus/v3
 
 go 1.24.4
-
-require github.com/yuin/goldmark v1.8.6

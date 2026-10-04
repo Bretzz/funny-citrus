@@ -1,0 +1,12 @@
+{
+    "description": "Brief description",
+    "resources": [
+        {
+            "filename": "secret code",
+            "time_of_upload": "tomorrow",
+            "size": "so fat (bytes)"
+        }
+    ],
+    "res_count": "it's over 9000",
+    "project_size": "really fat (bytes)"
+}
