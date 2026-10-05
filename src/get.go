@@ -16,7 +16,7 @@ func GetProjectList(w http.ResponseWriter, r *http.Request) {
 	projects, err := pfile.ListSubdirs(PROJECT_DIR)
 
 	// #debug
-	fmt.Printf("dir %s\n", PROJECT_DIR)
+	// fmt.Printf("dir %s\n", PROJECT_DIR)
 
 	if err != nil {
 		http.Error(w, "Unable to open project directory", http.StatusInternalServerError)
@@ -116,7 +116,7 @@ func GetProjectMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read template.md from project directory
+	// Read from project directory
 	metadata, err := BuildProjectMetadata(projectPath)
 	if err != nil {
 		http.Error(w, "Unable to parse metadata", http.StatusInternalServerError)
