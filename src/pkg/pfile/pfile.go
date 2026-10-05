@@ -7,13 +7,9 @@ import (
 )
 
 // Returns a set of all subdirs of a specific directory.
-// Returns an error if it's an absolute path.
 func ListSubdirs(parent string) ([]string, error) {
 
 	parent = filepath.Clean(parent)
-	if !filepath.IsLocal(parent) {
-		return nil, fmt.Errorf("Error: The provided path isn't local")
-	}
 
 	entries, err := os.ReadDir(parent)
 	if err != nil {
@@ -33,11 +29,7 @@ func ListSubdirs(parent string) ([]string, error) {
 // Returns a set of all files of a specific directory.
 // Returns an error if it's an absolute path.
 func ListFiles(dir string) ([]string, error) {
-
 	// dir = filepath.Clean(dir)
-	if !filepath.IsLocal(dir) {
-		return nil, fmt.Errorf("Error: The provided path isn't local")
-	}
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"funny-citrus/v3/pkg/basic"
@@ -26,7 +27,7 @@ import (
 - `GET /p/{project}/{resource}` get the specific resource
 */
 
-const PROJECT_DIR string = "./data"
+var PROJECT_DIR string = "./data"
 
 var INVALID_PROJECT_NAMES = []string{"", ".", "/", "p"}
 
@@ -46,7 +47,10 @@ func BuildProjectPath(project string) (string, error) {
 }
 
 func main() {
-	fmt.Println("Hello World")
+	if len(os.Args) == 2 {
+		PROJECT_DIR = os.Args[1]
+	}
+	fmt.Printf("PROJECT_DIR: %s\n", os.Args[1])
 
 	// Mux is needed to process dynamic URLs
 	mux := http.NewServeMux()

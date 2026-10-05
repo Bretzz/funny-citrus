@@ -14,6 +14,10 @@ import (
 
 func GetProjectList(w http.ResponseWriter, r *http.Request) {
 	projects, err := pfile.ListSubdirs(PROJECT_DIR)
+
+	// #debug
+	fmt.Printf("dir %s\n", PROJECT_DIR)
+
 	if err != nil {
 		http.Error(w, "Unable to open project directory", http.StatusInternalServerError)
 		return
@@ -32,9 +36,6 @@ type ProjectResource struct {
 // ListResources returns a list of all files in a specific directory.
 // Returns an error if the path is not local (e.g., absolute or escapes working dir).
 func ListResources(dir string) ([]ProjectResource, error) {
-	if !filepath.IsLocal(dir) {
-		return nil, fmt.Errorf("path '%s' is not local", dir)
-	}
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -118,7 +119,7 @@ func GetProjectMetadata(w http.ResponseWriter, r *http.Request) {
 	// Read template.md from project directory
 	metadata, err := BuildProjectMetadata(projectPath)
 	if err != nil {
-		http.Error(w, "Unable to read template", http.StatusInternalServerError)
+		http.Error(w, "Unable to parse metadata", http.StatusInternalServerError)
 		return
 	}
 
