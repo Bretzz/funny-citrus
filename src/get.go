@@ -44,7 +44,7 @@ func ListResources(dir string) ([]ProjectResource, error) {
 
 	var resources []ProjectResource
 	for _, entry := range entries {
-		if entry.IsDir() {
+		if entry.IsDir() || entry.Name() == "metadata.json" {
 			continue
 		}
 
@@ -83,6 +83,9 @@ type ProjectMetadata struct {
 func BuildProjectMetadata(path string) (ProjectMetadata, error) {
 
 	var metadata ProjectMetadata
+
+	// Get Metadata file
+	// #todo
 
 	// Get Title & description
 	metadata.Title = filepath.Base(path)

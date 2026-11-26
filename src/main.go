@@ -46,6 +46,33 @@ func BuildProjectPath(project string) (string, error) {
 	return projPath, nil
 }
 
+type spaHandler struct {
+	staticPath string
+	indexFile  string
+}
+
+func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Join public path with the requested URL path
+	path := filepath.Join(h.staticPath, r.URL.Path)
+
+	// Check if the file exists or is a directory
+	fi, err := os.Stat(path)
+	if os.IsNotExist(err) || fi.IsDir() {
+		// File not found, serve index.html for Vue Router
+		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexFile))
+		return
+	}
+
+	if err != nil {
+		// If there was another error (e.g., permissions), return 500
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Otherwise, serve the actual file (JS, CSS, images, etc.)
+	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+}
+
 func main() {
 
 	// Retreive data directory
@@ -58,8 +85,6 @@ func main() {
 
 	// Mux is needed to process dynamic URLs
 	mux := http.NewServeMux()
-	// Serve static content found in public/
-	mux.Handle("/", http.FileServer(http.Dir("./public")))
 
 	// GET endpoints
 	mux.HandleFunc("GET /p", GetProjectList)
@@ -67,6 +92,10 @@ func main() {
 	mux.HandleFunc("GET /p/{project}/{resource}", GetResource)
 	// download
 	mux.HandleFunc("GET /p/download", GetProjectDownload)
+
+	// Handle SPA behaviour
+	spa := spaHandler{staticPath: "./public", indexFile: "index.html"}
+	mux.Handle("/", spa)
 
 	// log.Fatal(http.ListenAndServe(":8080", logRequest(mux)))
 	log.Fatal(http.ListenAndServe(":8080", mux))
